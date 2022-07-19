@@ -5,9 +5,9 @@ import (
 	"os"
 
 	"github.com/jpillora/opts"
-	"github.com/wxio/acli/internal/adl/init_cmd"
 	"github.com/wxio/acli/internal/cli/newsubcmd"
 	"github.com/wxio/acli/internal/cli/rename"
+	"github.com/wxio/acli/internal/fib"
 	"github.com/wxio/acli/internal/types"
 )
 
@@ -60,8 +60,5 @@ func init() {
 }
 
 func init() {
-	// imports
-	// 	"github.com/wxio/internal/adl/init_cmd"
-	cliBldr.AddCommand(opts.New(&struct{}{}).Name("adl").
-		AddCommand(opts.New(init_cmd.NewInitCmd(rflg)).Name("init")))
+	cliBldr.AddCommand(opts.New(fib.NewFib(rflg)).Name("fib"))
 }
