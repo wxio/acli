@@ -1,0 +1,34 @@
+{{define "newsubcmd" -}}
+package {{.Name}}
+
+import (
+	"fmt"
+
+	"github.com/{{.Org}}/{{.Project}}/internal/types"
+)
+
+type {{.Name}}Opt struct {
+	rt    *types.Root
+	Debug bool
+	// public fields are flags by default. Use annotations to adjust eg. `opts:"mode=arg"`
+}
+
+func New{{.Name | ToCamel}}(rt *types.Root) interface{} {
+	in := {{.Name}}Opt{
+		rt: rt,
+	}
+	return &in
+}
+
+func (in *{{.Name}}Opt) Run() {
+	in.rt.Config(in)
+	fmt.Printf("todo implement {{.Name}}\n")
+}
+{{end}}
+
+{{define "mainreg" -}}
+//add to main
+//Complete().
+AddCommand(opts.New({{.Name}}.New{{.Name | ToCamel}}(rflg)).Name("{{.Name}}")).
+//Parse()
+{{end}}
