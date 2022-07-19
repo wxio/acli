@@ -2,7 +2,11 @@ package fib
 
 import (
 	"fmt"
+	"log"
 	"os"
+
+	"net/http"
+	_ "net/http/pprof"
 
 	"github.com/wxio/acli/internal/types"
 )
@@ -25,12 +29,16 @@ func NewFib(rt *types.Root) interface{} {
 
 func (in *fibOpt) Run() {
 	in.rt.Config(in)
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
 	switch in.Impl {
 	case "i":
-		fmt.Printf("nth fib is %v\n", fibIterative(in.Nth))
+		fmt.Printf("interactive: nth fib is %v\n", fibIterative(in.Nth))
 	case "r":
-		fmt.Printf("nth fib is %v\n", fibRecursive(in.Nth))
+		fmt.Printf("recursive: nth fib is %v\n", fibRecursive(in.Nth))
 	case "c":
+		fmt.Printf("concurrent: nth fib is %v\n", fibChannel(in.Nth))
 	default:
 		fmt.Printf("only valid impl option are i|r|c not '%s'\n", in.Impl)
 		os.Exit(2)
@@ -57,4 +65,29 @@ func fibRecursive(nth int) int {
 		return 1
 	}
 	return fibRecursive(nth-2) + fibRecursive(nth-1)
+}
+
+func nthCell(idx int, in0, in1 chan int) (out chan int) {
+	out = make(chan int, 2)
+	go func() {
+		n0, n1 := <-in0, <-in1
+		s := n0 + n1
+		out <- s
+		out <- s
+	}()
+	return
+}
+
+func fibChannel(nth int) int {
+	in := make(chan int, 2)
+	out0, out1 := in, nthCell(3, in, in)
+	for i := 4; i <= nth; i++ {
+		out0, out1 = out1, nthCell(i, out0, out1)
+	}
+	in <- 1
+	in <- 1
+	in <- 1
+	_ = <-out0
+	r1 := <-out1
+	return r1
 }
