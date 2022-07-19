@@ -8,6 +8,7 @@ import (
 	"text/template"
 
 	"github.com/golang/glog"
+	"github.com/iancoleman/strcase"
 	"github.com/wxio/acli/internal/types"
 )
 
@@ -57,8 +58,8 @@ func (in *newsubcmdOpt) Run() {
 	}
 	funcMap := template.FuncMap{
 		"ToUpper":      strings.ToUpper,
-		"ToCamel":      ToCamel,
-		"ToLowerCamel": ToLowerCamel,
+		"ToCamel":      strcase.ToCamel,
+		"ToLowerCamel": strcase.ToLowerCamel,
 	}
 	tmpl, err := template.New("").Funcs(funcMap).ParseFS(fs, "*.tmpl")
 	if err != nil {
