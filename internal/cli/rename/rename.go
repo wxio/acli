@@ -1,8 +1,10 @@
 package rename
 
 import (
+	"bytes"
 	"fmt"
 	"io/fs"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,9 +18,8 @@ type renameOpt struct {
 	Debug bool
 	// public fields are flags by default.
 	// Use annotations to adjust eg. `opts:"mode=arg"`
-	Org        string
-	Name       string
-	ModulePath string `help:"the parent path of the internal src directory"`
+	FromTo     []string `help:"src dest eg wxio/acli freddo/frog or acli frog" opts:"mode=arg"`
+	ModulePath string   `help:"the parent path of the internal src directory"`
 	err        error
 }
 
@@ -42,20 +43,34 @@ func (in *renameOpt) Run() {
 		fmt.Printf("could get executable's path %v\n", in.err)
 		os.Exit(1)
 	}
-	if in.Name == "" {
-		fmt.Printf("Name (--name) required\n")
+	if len(in.FromTo) != 2 {
+		fmt.Printf("'from_name to_name' must exist\n")
 		os.Exit(1)
 	}
-	WalkDirSrc(in.ModulePath, func(path string, d fs.DirEntry, err error) error {
+	from, to := strings.Split(in.FromTo[0], "/"), strings.Split(in.FromTo[1], "/")
+	if len(from) != len(to) && (len(to) == 1 || len(to) == 2) {
+		fmt.Printf("'from_name to_name' must must look like 'a/b' or just 'b' and be the same\n")
+		os.Exit(1)
+	}
+	err := WalkDirSrc(in.ModulePath, func(path string, d fs.DirEntry, err error) error {
 		info, err := d.Info()
 		if err != nil {
 			fmt.Printf("!!! %v\n", err)
 			return err
 		}
-		m := info.Mode()
-		fmt.Printf("path:'%v'   name:'%s' dir:%v mode:%v\n", path, d.Name(), d.Type().IsDir(), m.String())
-		return nil
+		contents, err := ioutil.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("read file error %v", err)
+		}
+		for i := range from {
+			contents = bytes.ReplaceAll(contents, []byte(from[i]), []byte(to[i]))
+		}
+		return ioutil.WriteFile(path, contents, info.Mode())
 	})
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		os.Exit(1)
+	}
 	fmt.Printf("todo implement rename\n")
 }
 
