@@ -4,7 +4,8 @@ import (
 	"fmt"
 
 	"github.com/jpillora/opts"
-	"github.com/wxio/acli/internal/newsubcmd"
+	"github.com/wxio/acli/internal/cli/newsubcmd"
+	"github.com/wxio/acli/internal/cli/rename"
 	"github.com/wxio/acli/internal/types"
 )
 
@@ -17,6 +18,7 @@ func main() {
 		AddCommand(opts.New(&versionCmd{}).Name("version")).
 		AddCommand(
 			opts.New(&struct{}{}).Name("cli").
+				AddCommand(opts.New(rename.NewRename(rflg)).Name("rename")).
 				AddCommand(opts.New(newsubcmd.New(rflg)).Name("new_sub_command")),
 		).
 		Parse()

@@ -15,10 +15,13 @@ type newsubcmdOpt struct {
 	rt    *types.Root
 	Debug bool
 
-	Name    string //`opts:"mode=arg"`
-	Parent  string `help:"path of parent commands eg foo/bar"`
-	Org     string
-	Project string
+	Name       string //`opts:"mode=arg"`
+	Parent     string `help:"path of parent commands eg foo/bar"`
+	Org        string
+	Project    string
+	ModulePath string `help:"the parent path of the internal src directory"`
+
+	err error
 }
 
 // New constructor for init
@@ -29,6 +32,13 @@ func New(rt *types.Root) interface{} {
 		Org:     "wxio",
 		Project: parts[len(parts)-1],
 	}
+	absPath, err := os.Executable()
+	if err == nil {
+		parts := strings.Split(absPath, "/")
+		in.ModulePath = strings.Join(parts[0:len(parts)-1], "/")
+	} else {
+		in.err = err
+	}
 	return &in
 }
 
@@ -37,6 +47,10 @@ var fs embed.FS
 
 func (in *newsubcmdOpt) Run() {
 	in.rt.Config(in)
+	if in.err != nil {
+		fmt.Printf("could get executable's path %v\n", in.err)
+		os.Exit(1)
+	}
 	if in.Name == "" {
 		fmt.Printf("Name (--name) required\n")
 		os.Exit(1)
@@ -45,18 +59,16 @@ func (in *newsubcmdOpt) Run() {
 		"ToUpper":      strings.ToUpper,
 		"ToCamel":      ToCamel,
 		"ToLowerCamel": ToLowerCamel,
-		"SplitSlash": func(s string) []string {
-			return strings.Split(s, "/")
-		},
 	}
 	tmpl, err := template.New("").Funcs(funcMap).ParseFS(fs, "*.tmpl")
 	if err != nil {
 		fmt.Printf("Template error %v\n", err)
 		glog.Fatalf("Template error %v", err)
 	}
-	dirname := "internal/" + in.Name
+
+	dirname := in.ModulePath + "/internal/" + in.Name
 	if in.Parent != "" {
-		dirname = "internal/" + in.Parent + "/" + in.Name
+		dirname = in.ModulePath + "/internal/" + in.Parent + "/" + in.Name
 	}
 	err = os.MkdirAll(dirname, os.ModePerm)
 	if err != nil {
@@ -82,5 +94,9 @@ func (in *newsubcmdOpt) Run() {
 	tmpl.Lookup("newsubcmd").Execute(fh, data)
 	fh.Close()
 	fmt.Printf("written starter code to '%v'\n", fname)
-	tmpl.Lookup("mainregwithparent").Execute(os.Stdout, data)
+	if in.Parent != "" {
+		tmpl.Lookup("mainregwithparent").Execute(os.Stdout, data)
+	} else {
+		tmpl.Lookup("mainreg").Execute(os.Stdout, data)
+	}
 }
