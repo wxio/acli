@@ -41,14 +41,9 @@ func (in *newsubcmdOpt) Run() {
 		os.Exit(1)
 	}
 	funcMap := template.FuncMap{
-		"ToUpper": strings.ToUpper,
-		// todo fix to be actual camel case
-		"ToCamel": func(s string) string {
-			if len(s) == 0 {
-				return ""
-			}
-			return strings.ToUpper(string(s[0])) + s[1:]
-		},
+		"ToUpper":      strings.ToUpper,
+		"ToCamel":      ToCamel,
+		"ToLowerCamel": ToLowerCamel,
 	}
 	tmpl, err := template.New("").Funcs(funcMap).ParseFS(fs, "*.tmpl")
 	if err != nil {

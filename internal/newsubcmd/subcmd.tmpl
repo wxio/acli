@@ -7,20 +7,20 @@ import (
 	"github.com/{{.Org}}/{{.Project}}/internal/types"
 )
 
-type {{.Name}}Opt struct {
+type {{.Name | ToLowerCamel}}Opt struct {
 	rt    *types.Root
 	Debug bool
 	// public fields are flags by default. Use annotations to adjust eg. `opts:"mode=arg"`
 }
 
 func New{{.Name | ToCamel}}(rt *types.Root) interface{} {
-	in := {{.Name}}Opt{
+	in := {{.Name | ToLowerCamel}}Opt{
 		rt: rt,
 	}
 	return &in
 }
 
-func (in *{{.Name}}Opt) Run() {
+func (in *{{.Name | ToLowerCamel}}Opt) Run() {
 	in.rt.Config(in)
 	fmt.Printf("todo implement {{.Name}}\n")
 }
