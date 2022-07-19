@@ -17,9 +17,7 @@ func main() {
 		AddCommand(opts.New(&versionCmd{}).Name("version")).
 		AddCommand(
 			opts.New(&struct{}{}).Name("cli").
-				AddCommand(
-					opts.New(newsubcmd.New(rflg)).Name("new_sub_command"), //.Summary(newsubcmd.Usage),
-				),
+				AddCommand(opts.New(newsubcmd.New(rflg)).Name("new_sub_command")),
 		).
 		Parse()
 	op.RunFatal()
