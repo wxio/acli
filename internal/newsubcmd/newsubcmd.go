@@ -36,6 +36,10 @@ var fs embed.FS
 
 func (in *newsubcmdOpt) Run() {
 	in.rt.Config(in)
+	if in.Name == "" {
+		fmt.Printf("Name (--name) required\n")
+		os.Exit(1)
+	}
 	funcMap := template.FuncMap{
 		"ToUpper": strings.ToUpper,
 		// todo fix to be actual camel case
