@@ -26,15 +26,22 @@ func main() {
 }
 
 // Set by build tool chain by
-// go build --ldflags '-X main.Version=xxx -X main.Date=xxx -X main.Commit=xxx'
+// go build --ldflags '-X main.XXX=xxx -X main.YYY=yyy -X main.ZZZ=zzz'
 var (
-	Version string = "dev"
-	Date    string = "na"
-	Commit  string = "na"
+	ProjectName string = "?"
+	Version     string = "dev"
+	Date        string = "na"
+	Commit      string = "na"
+	ReleaseURL  string = "na"
 )
 
 type versionCmd struct{}
 
 func (r *versionCmd) Run() {
-	fmt.Printf("version: %s\ndate: %s\ncommit: %s\n", Version, Date, Commit)
+	fmt.Printf(`%s
+version: %s
+date:    %s
+commit:  %s
+release: %s
+`, ProjectName, Version, Date, Commit, ReleaseURL)
 }
