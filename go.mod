@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
+	github.com/iancoleman/strcase v0.2.0
 	github.com/jpillora/opts v1.2.0
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
 )
