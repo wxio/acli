@@ -13,9 +13,9 @@ You ask why's it amazing;
 [![Powered By: Opts CLI Library](https://img.shields.io/badge/powered%20by-opts_cli-green.svg?style=for-the-badge)](https://github.com/jpillora/opts)
 [![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?style=for-the-badge)](https://github.com/goreleaser)
 
-![Sample](./docs/acli_sample.svg)
-
 ## Quick Start
+
+[Terminal Recording](./docs/acli_sample.svg) simpler to below commands
 
 ``` bash
 git clone https://github.com/wxio/acli.git mycli
