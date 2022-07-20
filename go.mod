@@ -2,6 +2,8 @@ module github.com/wxio/acli
 
 go 1.18
 
+replace github.com/jpillora/opts => github.com/millergarym/opts v1.4.0
+
 require (
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/iancoleman/strcase v0.2.0

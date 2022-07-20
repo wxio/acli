@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/jpillora/opts"
 	"github.com/wxio/acli/internal/cli/newsubcmd"
@@ -40,7 +41,11 @@ var (
 
 func main() {
 	cli := cliBldr.Parse()
-	cli.RunFatal()
+	cmd, err := cli.Run()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v%s\n", err, cmd.Help())
+		os.Exit(1)
+	}
 }
 
 func init() {
