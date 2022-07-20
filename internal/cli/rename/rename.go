@@ -52,6 +52,8 @@ func (in *renameOpt) Run() {
 		fmt.Printf("'from_name to_name' must must look like 'a/b' or just 'b' and be the same\n")
 		os.Exit(1)
 	}
+
+	fmt.Printf("replacing ...\n")
 	err := WalkDirSrc(in.ModulePath, func(path string, d fs.DirEntry, err error) error {
 		info, err := d.Info()
 		if err != nil {
@@ -62,16 +64,19 @@ func (in *renameOpt) Run() {
 		if err != nil {
 			return fmt.Errorf("read file error %v", err)
 		}
+		count := 0
 		for i := range from {
+			count += bytes.Count(contents, []byte(from[i]))
 			contents = bytes.ReplaceAll(contents, []byte(from[i]), []byte(to[i]))
 		}
+		fmt.Printf("  replaced %d occurrences in %v\n", count, path)
 		return ioutil.WriteFile(path, contents, info.Mode())
 	})
 	if err != nil {
-		fmt.Printf("%v\n", err)
+		fmt.Printf("error %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf("todo implement rename\n")
+	fmt.Printf("done\n")
 }
 
 // walk a directory calling fn on src files.
