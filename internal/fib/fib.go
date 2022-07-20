@@ -16,7 +16,7 @@ type fibOpt struct {
 	Debug bool
 
 	Nth  int    `opts:"mode=arg"`
-	Impl string `help:"i:iterative r:recursive c:channels"`
+	Impl string `help:"i:iterative r:recursive c:channels c2:concurrent"`
 }
 
 func NewFib(rt *types.Root) interface{} {
@@ -39,6 +39,8 @@ func (in *fibOpt) Run() {
 		fmt.Printf("recursive: nth fib is %v\n", fibRecursive(in.Nth))
 	case "c":
 		fmt.Printf("concurrent: nth fib is %v\n", fibChannel(in.Nth))
+	case "c2":
+		fmt.Printf("concurrent: nth fib is %v\n", fibThreeGoRoutines(in.Nth))
 	default:
 		fmt.Printf("only valid impl option are i|r|c not '%s'\n", in.Impl)
 		os.Exit(2)
@@ -90,4 +92,49 @@ func fibChannel(nth int) int {
 	_ = <-out0
 	r1 := <-out1
 	return r1
+}
+
+func fibThreeGoRoutines(nth int) int {
+	type R struct {
+		n string
+		r int
+	}
+	done := make(chan bool, 3)
+	goX := func(n string, g0, g1, g2 chan int, ex chan R) {
+		for {
+			select {
+			case n0 := <-g1:
+				n1 := <-g2
+				s := n0 + n1
+				ex <- R{n, s}
+				g0 <- s
+				g0 <- s
+			case <-done:
+				return
+			}
+		}
+	}
+	g0 := make(chan int, 2)
+	g1 := make(chan int, 2)
+	g2 := make(chan int, 2)
+	ex := make(chan R)
+	go goX("g0", g0, g1, g2, ex)
+	go goX("g1", g1, g0, g2, ex)
+	g1 <- 1
+	g2 <- 1
+	g2 <- 1
+	go goX("g2", g2, g0, g1, ex)
+	count := 2
+	x := 1
+	for {
+		r := <-ex
+		x = r.r
+		count++
+		if count >= nth {
+			done <- true
+			done <- true
+			done <- true
+			return x
+		}
+	}
 }
