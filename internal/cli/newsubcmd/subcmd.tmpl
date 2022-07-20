@@ -27,21 +27,18 @@ func (in *{{.Name | ToLowerCamel}}Opt) Run() {
 {{end}}
 
 {{define "mainreg" -}}
-//add to main
-//Complete().
 AddCommand(opts.New({{.Name}}.New{{.Name | ToCamel}}(rflg)).Name("{{.Name}}")).
-//Parse()
 {{end}}
 
 {{define "mainregwithparent" -}}
-//add to main
-//Complete().
 {{range .Parent -}}
 AddCommand(opts.New(&struct{}{}).Name("{{.}}").
 {{end -}}
-AddCommand(opts.New({{.Name}}.New{{.Name | ToCamel}}(rflg)).Name("{{.Name}}")),
-{{range .Parent -}}
+{{range  $i, $e := .Names -}}
+{{if $i}}.
+{{end}}AddCommand(opts.New({{$e}}.New{{$e | ToCamel}}(rflg)).Name("{{$e}}"))
+{{- end}}
+{{- range .Parent -}}
 )
 {{- end -}}.
-//Parse()
 {{end}}

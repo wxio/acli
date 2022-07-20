@@ -16,11 +16,12 @@ type newsubcmdOpt struct {
 	rt    *types.Root
 	Debug bool
 
-	Name       string //`opts:"mode=arg"`
-	Parent     string `help:"path of parent commands eg foo/bar"`
+	Name       []string `opts:"mode=arg"`
+	Parent     string   `help:"path of parent commands eg foo/bar"`
 	Org        string
 	Project    string
 	ModulePath string `help:"the parent path of the internal src directory"`
+	Overwrite  bool
 
 	err error
 }
@@ -46,15 +47,14 @@ func New(rt *types.Root) interface{} {
 //go:embed subcmd.tmpl
 var fs embed.FS
 
-func (in *newsubcmdOpt) Run() {
+func (in *newsubcmdOpt) Run() error {
 	in.rt.Config(in)
 	if in.err != nil {
 		fmt.Printf("could get executable's path %v\n", in.err)
 		os.Exit(1)
 	}
-	if in.Name == "" {
-		fmt.Printf("Name (--name) required\n")
-		os.Exit(1)
+	if len(in.Name) == 0 {
+		return fmt.Errorf("Name(s) required\n")
 	}
 	funcMap := template.FuncMap{
 		"ToUpper":      strings.ToUpper,
@@ -66,38 +66,72 @@ func (in *newsubcmdOpt) Run() {
 		fmt.Printf("Template error %v\n", err)
 		glog.Fatalf("Template error %v", err)
 	}
-
-	dirname := in.ModulePath + "/internal/" + in.Name
-	if in.Parent != "" {
-		dirname = in.ModulePath + "/internal/" + in.Parent + "/" + in.Name
-	}
-	err = os.MkdirAll(dirname, os.ModePerm)
-	if err != nil {
-		fmt.Printf("create dir error %v\n", err)
-	}
-	fname := dirname + "/" + in.Name + ".go"
-	fh, err := os.Create(fname)
-	if err != nil {
-		fmt.Printf("create file error %v\n", err)
-		os.Exit(1)
-	}
 	data := struct {
 		Name    string
 		Parent  []string
 		Org     string
 		Project string
 	}{
-		Name:    in.Name,
+		// Name:    Name,
 		Parent:  strings.Split(in.Parent, "/"),
 		Org:     in.Org,
 		Project: in.Project,
 	}
+	for _, name := range in.Name {
+		data.Name = name
+		in.makeStarter(name, tmpl, data)
+	}
+	fmt.Printf("\nMain needs to be manually modified, sample below\n")
+	fmt.Printf("``` golang\n")
+	if in.Parent == "" {
+		for _, name := range in.Name {
+			data.Name = name
+			err := tmpl.Lookup("mainreg").Execute(os.Stdout, data)
+			if err != nil {
+				fmt.Printf("template exec error %v\n", err)
+			}
+		}
+	} else {
+		data := struct {
+			Names   []string
+			Parent  []string
+			Org     string
+			Project string
+		}{
+			Names:   in.Name,
+			Parent:  strings.Split(in.Parent, "/"),
+			Org:     in.Org,
+			Project: in.Project,
+		}
+		tmpl.Lookup("mainregwithparent").Execute(os.Stdout, data)
+	}
+	fmt.Printf("```\n")
+	return nil
+}
+
+func (in *newsubcmdOpt) makeStarter(name string, tmpl *template.Template, data any) {
+	dirname := in.ModulePath + "/internal/" + name
+	if in.Parent != "" {
+		dirname = in.ModulePath + "/internal/" + in.Parent + "/" + name
+	}
+	err := os.MkdirAll(dirname, os.ModePerm)
+	if err != nil {
+		fmt.Printf("create dir error %v\n", err)
+	}
+	fname := dirname + "/" + name + ".go"
+	if !in.Overwrite {
+		if _, err = os.Open(fname); err == nil {
+			fmt.Printf("Exiting. File already exists. Use --overwrite to ignore.\n")
+			fmt.Printf("  %s\n", fname)
+			os.Exit(3)
+		}
+	}
+	fh, err := os.Create(fname)
+	if err != nil {
+		fmt.Printf("create file error %v\n", err)
+		os.Exit(1)
+	}
 	tmpl.Lookup("newsubcmd").Execute(fh, data)
 	fh.Close()
 	fmt.Printf("written starter code to '%v'\n", fname)
-	if in.Parent != "" {
-		tmpl.Lookup("mainregwithparent").Execute(os.Stdout, data)
-	} else {
-		tmpl.Lookup("mainreg").Execute(os.Stdout, data)
-	}
 }

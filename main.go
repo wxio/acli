@@ -19,8 +19,7 @@ func main() {
 		AddCommand(
 			opts.New(&struct{}{}).Name("cli").
 				AddCommand(opts.New(rename.NewRename(rflg)).Name("rename")).
-				AddCommand(opts.New(newsubcmd.New(rflg)).Name("new_sub_command")),
-		).
+				AddCommand(opts.New(newsubcmd.New(rflg)).Name("new_sub_command"))).
 		Parse()
 	op.RunFatal()
 }
