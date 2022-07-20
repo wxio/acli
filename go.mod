@@ -2,7 +2,9 @@ module github.com/wxio/acli
 
 go 1.18
 
-replace github.com/jpillora/opts => github.com/millergarym/opts v1.4.0
+replace github.com/jpillora/opts => github.com/millergarym/opts v1.4.1
+
+// replace github.com/jpillora/opts => ../../../millergarym/opts
 
 require (
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b

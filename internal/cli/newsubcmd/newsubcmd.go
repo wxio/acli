@@ -34,10 +34,12 @@ func New(rt *types.Root) interface{} {
 		Org:     "wxio",
 		Project: parts[len(parts)-1],
 	}
-	absPath, err := os.Executable()
+	absPath, err := os.Getwd()
+	if _, err := os.Open(absPath + "/go.mod"); err != nil {
+		err = fmt.Errorf("no go.mod in current directory")
+	}
 	if err == nil {
-		parts := strings.Split(absPath, "/")
-		in.ModulePath = strings.Join(parts[0:len(parts)-1], "/")
+		in.ModulePath = absPath
 	} else {
 		in.err = err
 	}
@@ -54,7 +56,7 @@ func (in *newsubcmdOpt) Run() error {
 		os.Exit(1)
 	}
 	if len(in.Name) == 0 {
-		return fmt.Errorf("Name(s) required\n")
+		return fmt.Errorf("Name(s) required")
 	}
 	funcMap := template.FuncMap{
 		"ToUpper":      strings.ToUpper,

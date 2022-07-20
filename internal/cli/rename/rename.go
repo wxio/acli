@@ -18,7 +18,9 @@ type renameOpt struct {
 	Debug bool
 	// public fields are flags by default.
 	// Use annotations to adjust eg. `opts:"mode=arg"`
-	FromTo     []string `help:"src dest eg wxio/acli freddo/frog or acli frog" opts:"mode=arg"`
+	FromOrg    string   `opts:"short=o"`
+	FromName   string   `opts:"short=n"`
+	To         []string `help:"src dest. Either 'org name' or just 'name' eg 'freddo frog' or 'frog'" opts:"mode=arg"`
 	ModulePath string   `help:"the parent path of the internal src directory"`
 	err        error
 }
@@ -27,30 +29,27 @@ func NewRename(rt *types.Root) interface{} {
 	in := renameOpt{
 		rt: rt,
 	}
-	absPath, err := os.Executable()
+	absPath, err := os.Getwd()
+	if _, err := os.Open(absPath + "/go.mod"); err != nil {
+		err = fmt.Errorf("no go.mod in current directory")
+	}
 	if err == nil {
-		parts := strings.Split(absPath, "/")
-		in.ModulePath = strings.Join(parts[0:len(parts)-1], "/")
+		in.ModulePath = absPath
+		in.FromOrg = "wxio"
+		in.FromName = "acli"
 	} else {
 		in.err = err
 	}
 	return &in
 }
 
-func (in *renameOpt) Run() {
+func (in *renameOpt) Run() error {
 	in.rt.Config(in)
 	if in.err != nil {
-		fmt.Printf("could get executable's path %v\n", in.err)
-		os.Exit(1)
+		return fmt.Errorf("could get executable's path %v", in.err)
 	}
-	if len(in.FromTo) != 2 {
-		fmt.Printf("'from_name to_name' must exist\n")
-		os.Exit(1)
-	}
-	from, to := strings.Split(in.FromTo[0], "/"), strings.Split(in.FromTo[1], "/")
-	if len(from) != len(to) && (len(to) == 1 || len(to) == 2) {
-		fmt.Printf("'from_name to_name' must must look like 'a/b' or just 'b' and be the same\n")
-		os.Exit(1)
+	if !(len(in.To) == 1 || len(in.To) == 2) {
+		return fmt.Errorf("'to' must must look like 'a b' or just 'b'")
 	}
 
 	fmt.Printf("replacing ...\n")
@@ -65,18 +64,24 @@ func (in *renameOpt) Run() {
 			return fmt.Errorf("read file error %v", err)
 		}
 		count := 0
-		for i := range from {
-			count += bytes.Count(contents, []byte(from[i]))
-			contents = bytes.ReplaceAll(contents, []byte(from[i]), []byte(to[i]))
+		if len(in.To) == 1 {
+			count += bytes.Count(contents, []byte(in.FromName))
+			contents = bytes.ReplaceAll(contents, []byte(in.FromName), []byte(in.To[0]))
+		}
+		if len(in.To) == 2 {
+			count += bytes.Count(contents, []byte(in.FromOrg))
+			contents = bytes.ReplaceAll(contents, []byte(in.FromOrg), []byte(in.To[0]))
+			count += bytes.Count(contents, []byte(in.FromName))
+			contents = bytes.ReplaceAll(contents, []byte(in.FromName), []byte(in.To[1]))
 		}
 		fmt.Printf("  replaced %d occurrences in %v\n", count, path)
 		return ioutil.WriteFile(path, contents, info.Mode())
 	})
 	if err != nil {
-		fmt.Printf("error %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("error %v\n", err)
 	}
 	fmt.Printf("done\n")
+	return nil
 }
 
 // walk a directory calling fn on src files.
