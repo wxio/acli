@@ -96,15 +96,20 @@ func (in *newsubcmdOpt) Run() error {
 		data := struct {
 			Names   []string
 			Parent  []string
+			Path    string
 			Org     string
 			Project string
 		}{
 			Names:   in.Name,
 			Parent:  strings.Split(in.Parent, "/"),
+			Path:    in.Parent,
 			Org:     in.Org,
 			Project: in.Project,
 		}
-		tmpl.Lookup("mainregwithparent").Execute(os.Stdout, data)
+		err = tmpl.Lookup("mainregwithparent").Execute(os.Stdout, data)
+		if err != nil {
+			fmt.Printf("template exec error %v\n", err)
+		}
 	}
 	fmt.Fprintf(os.Stderr, "```\n")
 	return nil

@@ -30,17 +30,25 @@ release: %s
 `, ProjectName, Version, Date, Commit, ReleaseURL)
 }
 
-func main() {
-	rflg := &types.Root{}
-	op := opts.New(rflg).
+var (
+	rflg    = &types.Root{}
+	cliBldr = opts.New(rflg).
 		Name("acli").
 		EmbedGlobalFlagSet().
-		Complete().
-		AddCommand(opts.New(&versionCmd{}).Name("version")).
-		AddCommand(
-			opts.New(&struct{}{}).Name("cli").
-				AddCommand(opts.New(rename.NewRename(rflg)).Name("rename")).
-				AddCommand(opts.New(newsubcmd.New(rflg)).Name("new_sub_command"))).
-		Parse()
-	op.RunFatal()
+		Complete()
+)
+
+func main() {
+	cli := cliBldr.Parse()
+	cli.RunFatal()
+}
+
+func init() {
+	cliBldr.AddCommand(opts.New(&versionCmd{}).Name("version"))
+}
+
+func init() {
+	cliBldr.AddCommand(opts.New(&struct{}{}).Name("cli").
+		AddCommand(opts.New(rename.NewRename(rflg)).Name("rename")).
+		AddCommand(opts.New(newsubcmd.New(rflg)).Name("new_sub_command")))
 }

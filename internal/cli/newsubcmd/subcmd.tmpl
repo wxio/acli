@@ -26,8 +26,10 @@ func (in *{{.Name | ToLowerCamel}}Opt) Run() {
 }
 {{end}}
 
-{{define "mainreg" -}}
-AddCommand(opts.New({{.Name}}.New{{.Name | ToCamel}}(rflg)).Name("{{.Name}}")).
+{{define "mainreg"}}
+func init() {
+	cliBldr.AddCommand(opts.New({{.Name}}.New{{.Name | ToCamel}}(rflg)).Name("{{.Name}}"))
+}
 {{end}}
 
 {{/* 
@@ -35,15 +37,25 @@ https://go.dev/play/p/V94BPN0uKD
 {{$n := len .}}{{range  $i, $e := .}}{{if $i}}, {{end}}{{if eq (plus1 $i) $n}}and {{end}}{{$e}}{{end}}.
 */}}
 
-{{define "mainregwithparent" -}}
-{{range .Parent -}}
+{{define "mainregwithparent"}}
+func init() {
+// imports
+{{$org := .Org -}}
+{{$path := .Path -}}
+{{range  $i, $e := .Names -}}
+// 	"github.com/{{$org}}/internal/{{$path}}/{{$e}}"
+{{end -}}
+	cliBldr.
+{{- range .Parent -}}
 AddCommand(opts.New(&struct{}{}).Name("{{.}}").
 {{end -}}
 {{range  $i, $e := .Names -}}
 {{if $i}}.
-{{end}}AddCommand(opts.New({{$e}}.New{{$e | ToCamel}}(rflg)).Name("{{$e}}"))
+{{end -}}
+		AddCommand(opts.New({{$e}}.New{{$e | ToCamel}}(rflg)).Name("{{$e}}"))
 {{- end}}
 {{- range .Parent -}}
 )
-{{- end -}}.
+{{- end}}
+}
 {{end}}
