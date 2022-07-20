@@ -50,7 +50,7 @@ var fs embed.FS
 func (in *newsubcmdOpt) Run() error {
 	in.rt.Config(in)
 	if in.err != nil {
-		fmt.Printf("could get executable's path %v\n", in.err)
+		fmt.Fprintf(os.Stderr, "couldn't get executable's path %v\n", in.err)
 		os.Exit(1)
 	}
 	if len(in.Name) == 0 {
@@ -63,7 +63,7 @@ func (in *newsubcmdOpt) Run() error {
 	}
 	tmpl, err := template.New("").Funcs(funcMap).ParseFS(fs, "*.tmpl")
 	if err != nil {
-		fmt.Printf("Template error %v\n", err)
+		fmt.Fprintf(os.Stderr, "Template error %v\n", err)
 		glog.Fatalf("Template error %v", err)
 	}
 	data := struct {
@@ -77,12 +77,13 @@ func (in *newsubcmdOpt) Run() error {
 		Org:     in.Org,
 		Project: in.Project,
 	}
+	fmt.Fprintf(os.Stderr, "written starter code\n")
 	for _, name := range in.Name {
 		data.Name = name
 		in.makeStarter(name, tmpl, data)
 	}
-	fmt.Printf("\nMain needs to be manually modified, sample below\n")
-	fmt.Printf("``` golang\n")
+	fmt.Fprintf(os.Stderr, "\nMain needs to be manually modified, sample below\n")
+	fmt.Fprintf(os.Stderr, "``` golang\n")
 	if in.Parent == "" {
 		for _, name := range in.Name {
 			data.Name = name
@@ -105,7 +106,7 @@ func (in *newsubcmdOpt) Run() error {
 		}
 		tmpl.Lookup("mainregwithparent").Execute(os.Stdout, data)
 	}
-	fmt.Printf("```\n")
+	fmt.Fprintf(os.Stderr, "```\n")
 	return nil
 }
 
@@ -116,22 +117,22 @@ func (in *newsubcmdOpt) makeStarter(name string, tmpl *template.Template, data a
 	}
 	err := os.MkdirAll(dirname, os.ModePerm)
 	if err != nil {
-		fmt.Printf("create dir error %v\n", err)
+		fmt.Fprintf(os.Stderr, "create dir error %v\n", err)
 	}
 	fname := dirname + "/" + name + ".go"
 	if !in.Overwrite {
 		if _, err = os.Open(fname); err == nil {
-			fmt.Printf("Exiting. File already exists. Use --overwrite to ignore.\n")
-			fmt.Printf("  %s\n", fname)
+			fmt.Fprintf(os.Stderr, "Exiting. File already exists. Use --overwrite to ignore.\n")
+			fmt.Fprintf(os.Stderr, "  %s\n", fname)
 			os.Exit(3)
 		}
 	}
 	fh, err := os.Create(fname)
 	if err != nil {
-		fmt.Printf("create file error %v\n", err)
+		fmt.Fprintf(os.Stderr, "create file error %v\n", err)
 		os.Exit(1)
 	}
 	tmpl.Lookup("newsubcmd").Execute(fh, data)
 	fh.Close()
-	fmt.Printf("written starter code to '%v'\n", fname)
+	fmt.Fprintf(os.Stderr, "  %v\n", fname)
 }
