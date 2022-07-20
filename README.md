@@ -15,7 +15,7 @@ You ask why's it amazing;
 
 ## Quick Start
 
-[Terminal Recording](./docs/acli_sample.svg) simpler to below commands
+[Terminal Recording](./docs/acli_sample.svg) similar to below commands.
 
 ``` bash
 git clone https://github.com/wxio/acli.git mycli
