@@ -13,13 +13,22 @@ You ask why's it amazing;
 [![Powered By: Opts CLI Library](https://img.shields.io/badge/powered%20by-opts_cli-green.svg?style=for-the-badge)](https://github.com/jpillora/opts)
 [![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?style=for-the-badge)](https://github.com/goreleaser)
 
+![Sample](./docs/acli_sample.svg)
+
 ## Quick Start
 
 ``` bash
-clone
-build
-./acli --install
-# new shell
-./acli <tab><tab>
+git clone https://github.com/wxio/acli.git mycli
+cd mycli
+go build
+./acli cli rename wxio/acli freddo/mycli
+go build
+./mycli --install
+# from zsh, differs for bash and fish
+source ~/.zshrc
+# tab completion now active
+./mycli cl<tab> new<tab> --par<tab> testing sample >> main.go
+# edit main.go
+go build
+./mycli te<tab> sa<tab>
 ```
-
