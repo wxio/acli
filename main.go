@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/jpillora/opts"
-	"github.com/wxio/acli/internal/adl/init_cmd"
 	"github.com/wxio/acli/internal/cli/newsubcmd"
 	"github.com/wxio/acli/internal/cli/rename"
 	"github.com/wxio/acli/internal/types"
@@ -44,7 +43,7 @@ func main() {
 	cli := cliBldr.Parse()
 	err := cli.Run()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n%s\n", err, cli.Selected().Help())
+		fmt.Fprintf(os.Stderr, "%s\nError: %v\n\n", cli.Selected().Help(), err)
 		os.Exit(1)
 	}
 }
@@ -57,11 +56,4 @@ func init() {
 	cliBldr.AddCommand(opts.New(&struct{}{}).Name("cli").
 		AddCommand(opts.New(rename.NewRename(rflg)).Name("rename")).
 		AddCommand(opts.New(newsubcmd.New(rflg)).Name("new_sub_command")))
-}
-
-func init() {
-	// imports
-	// 	"github.com/wxio/internal/adl/init_cmd"
-	cliBldr.AddCommand(opts.New(&struct{}{}).Name("adl").
-		AddCommand(opts.New(init_cmd.NewInitCmd(rflg)).Name("init")))
 }
