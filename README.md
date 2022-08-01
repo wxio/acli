@@ -32,3 +32,13 @@ source ~/.zshrc
 go build
 ./mycli te<tab> sa<tab>
 ```
+
+### Using `cli new_sub_command`
+*without tab completion*
+
+```
+acli cli new_sub_command --parent go_tour/module1 step1
+```
+
+<!-- instructions for main -->
+Modify `main.go`
