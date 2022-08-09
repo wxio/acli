@@ -4,6 +4,10 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"sort"
+	"strings"
+
+	"github.com/jpillora/opts"
 )
 
 // Root struct for commands
@@ -12,9 +16,9 @@ import (
 //    opts:="-" come from config file
 //    yaml:="-" come from command line flags
 type Root struct {
-	Cfg        string `help:"Config file in json format (NOTE file entries take precedence over command-line flags & env)" json:"-"`
-	DumpConfig bool   `help:"Dump the config to stdout and exits" json:"-"`
-	GenDocs    bool
+	Cfg        string          `help:"Config file in json format (NOTE file entries take precedence over command-line flags & env)" json:"-"`
+	DumpConfig bool            `help:"Dump the config to stdout and exits" json:"-"`
+	Cli        opts.ParsedOpts `opts:"-"`
 }
 
 func (rt Root) Config(in interface{}) {
@@ -44,5 +48,33 @@ func (rt Root) Config(in interface{}) {
 			log.Fatalf("json encoding error %v", err)
 		}
 		os.Exit(0)
+	}
+}
+
+type RoseTree struct {
+	Cmd  opts.ParsedOpts
+	Name string
+	Kids []*RoseTree
+}
+
+func (a RoseTree) Len() int      { return len(a.Kids) }
+func (a RoseTree) Swap(i, j int) { a.Kids[i], a.Kids[j] = a.Kids[j], a.Kids[i] }
+func (a RoseTree) Less(i, j int) bool {
+	return strings.Compare(a.Kids[i].Name, a.Kids[j].Name) < 0
+}
+func (rt *RoseTree) Collect(cmds map[string]opts.Opts) {
+	for name, cmd := range cmds {
+		parsed, _ := cmd.ParseArgsError([]string{})
+		next := &RoseTree{Name: name, Cmd: parsed}
+		rt.Kids = append(rt.Kids, next)
+		next.Collect(parsed.Children())
+	}
+}
+
+func (rt *RoseTree) Call(path []string, fn func([]string, RoseTree)) {
+	sort.Sort(rt)
+	for _, subcmd := range rt.Kids {
+		fn(path, *subcmd)
+		subcmd.Call(append(path, subcmd.Name), fn)
 	}
 }
