@@ -36,7 +36,9 @@ func New(rt *types.Root) interface{} {
 		Project: parts[len(parts)-1],
 	}
 	absPath, err := os.Getwd()
-	if _, err := os.Open(absPath + "/go.mod"); err != nil {
+	if err != nil {
+		err = fmt.Errorf("can't get working directory")
+	} else if _, err = os.Open(absPath + "/go.mod"); err != nil {
 		err = fmt.Errorf("no go.mod in current directory")
 	}
 	if err == nil {
@@ -53,7 +55,7 @@ var fs embed.FS
 func (in *newsubcmdOpt) Run() error {
 	in.rt.Config(in)
 	if in.err != nil {
-		fmt.Fprintf(os.Stderr, "couldn't get executable's path %v\n", in.err)
+		fmt.Fprintf(os.Stderr, "Error in init phase. Error: %v\n", in.err)
 		os.Exit(1)
 	}
 	if len(in.Name) == 0 {

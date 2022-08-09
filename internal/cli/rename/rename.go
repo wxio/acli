@@ -30,13 +30,20 @@ func NewRename(rt *types.Root) interface{} {
 		rt: rt,
 	}
 	absPath, err := os.Getwd()
-	if _, err := os.Open(absPath + "/go.mod"); err != nil {
+	if err != nil {
+		err = fmt.Errorf("can't get working directory")
+	} else if _, err = os.Open(absPath + "/go.mod"); err != nil {
 		err = fmt.Errorf("no go.mod in current directory")
 	}
 	if err == nil {
+		name := os.Args[0]
+		path := strings.Split(os.Args[0], "/")
+		if len(path) > 1 {
+			name = path[len(path)-1]
+		}
 		in.ModulePath = absPath
-		in.FromOrg = "wxio"
-		in.FromName = "acli"
+		in.FromOrg = "wxio" // todo get this from go.mod?
+		in.FromName = name
 	} else {
 		in.err = err
 	}
@@ -46,7 +53,8 @@ func NewRename(rt *types.Root) interface{} {
 func (in *renameOpt) Run() error {
 	in.rt.Config(in)
 	if in.err != nil {
-		return fmt.Errorf("could get executable's path %v", in.err)
+		fmt.Fprintf(os.Stderr, "Error in init phase. Error: %v\n", in.err)
+		os.Exit(1)
 	}
 	if !(len(in.To) == 1 || len(in.To) == 2) {
 		return fmt.Errorf("'to' must must look like 'a b' or just 'b'")
