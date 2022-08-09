@@ -53,7 +53,7 @@ func init() {
 }
 
 func init() {
-	cliBldr.AddCommand(opts.New(&struct{}{}).Name("cli").
+	cliBldr.AddCommand(opts.NewPlaceholder("cli").
 		AddCommand(opts.New(rename.NewRename(rflg)).Name("rename")).
 		AddCommand(opts.New(newsubcmd.New(rflg)).Name("new_sub_command")))
 }

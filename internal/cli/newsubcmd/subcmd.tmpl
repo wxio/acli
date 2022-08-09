@@ -43,7 +43,7 @@ func init() {
 {{$org := .Org -}}
 {{$path := .Path -}}
 {{range  $i, $e := .Names -}}
-// 	"github.com/{{$org}}/internal/{{$path}}/{{$e}}"
+// 	"github.com/{{$org}}/{{.Project}}/internal/{{$path}}/{{$e}}"
 {{end -}}
 	cliBldr.
 {{- range .Parent -}}
@@ -57,5 +57,30 @@ AddCommand(opts.New(&struct{}{}).Name("{{.}}").
 {{- range .Parent -}}
 )
 {{- end}}
+}
+{{end}}
+
+{{define "file_header" -}}
+package main
+
+import (
+	"github.com/jpillora/opts"
+{{- $org := .Org -}}
+{{$path := .Path -}}
+{{$proj := .Project -}}
+{{- range  $i, $e := .Names}}
+	"github.com/{{$org}}/{{$proj}}/internal/{{$path}}/{{$e}}"
+{{- end}}
+)
+
+{{end}}
+
+{{define "mainregwithparent_addstruct" -}}
+func init() {
+	cliBldr.AddStruct("{{.Path}}",
+{{- range  $i, $e := .Names}}
+		opts.New({{$e}}.New{{$e | ToCamel}}(rflg)).Name("{{$e}}"),
+{{- end}}
+	)
 }
 {{end}}

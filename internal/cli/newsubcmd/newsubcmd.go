@@ -22,6 +22,7 @@ type newsubcmdOpt struct {
 	Project    string
 	ModulePath string `help:"the parent path of the internal src directory"`
 	Overwrite  bool
+	EntireReg  bool `help:"(only valid with --parent) print to standard output an entire go file to register the subcommand. If false only the func init is printed."`
 
 	err error
 }
@@ -73,8 +74,10 @@ func (in *newsubcmdOpt) Run() error {
 		Parent  []string
 		Org     string
 		Project string
+		Path    string
 	}{
 		// Name:    Name,
+		Path:    in.Parent,
 		Parent:  strings.Split(in.Parent, "/"),
 		Org:     in.Org,
 		Project: in.Project,
@@ -84,9 +87,12 @@ func (in *newsubcmdOpt) Run() error {
 		data.Name = name
 		in.makeStarter(name, tmpl, data)
 	}
-	fmt.Fprintf(os.Stderr, "\nMain needs to be manually modified, sample below\n")
-	fmt.Fprintf(os.Stderr, "``` golang\n")
+	if in.Parent == "" && in.EntireReg {
+		fmt.Fprintf(os.Stderr, "\nWarning --entire-reg only valid if --parent is specified\n")
+	}
 	if in.Parent == "" {
+		fmt.Fprintf(os.Stderr, "\nMain needs to be manually modified, sample below\n")
+		fmt.Fprintf(os.Stderr, "``` golang\n")
 		for _, name := range in.Name {
 			data.Name = name
 			err := tmpl.Lookup("mainreg").Execute(os.Stdout, data)
@@ -108,7 +114,19 @@ func (in *newsubcmdOpt) Run() error {
 			Org:     in.Org,
 			Project: in.Project,
 		}
-		err = tmpl.Lookup("mainregwithparent").Execute(os.Stdout, data)
+		if in.EntireReg {
+			fmt.Fprintf(os.Stderr, "\nA go file in package main needs to be manually created, sample content below\n")
+			fmt.Fprintf(os.Stderr, "``` golang\n")
+			err = tmpl.Lookup("file_header").Execute(os.Stdout, data)
+			if err != nil {
+				fmt.Printf("template 'file_header' exec error %v\n", err)
+				return err
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "\nMain needs to be manually modified, sample below\n")
+			fmt.Fprintf(os.Stderr, "``` golang\n")
+		}
+		err = tmpl.Lookup("mainregwithparent_addstruct").Execute(os.Stdout, data)
 		if err != nil {
 			fmt.Printf("template exec error %v\n", err)
 		}

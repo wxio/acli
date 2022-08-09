@@ -2,7 +2,7 @@ module github.com/wxio/acli
 
 go 1.18
 
-replace github.com/jpillora/opts => github.com/millergarym/opts v1.4.1
+replace github.com/jpillora/opts => github.com/millergarym/opts v1.5.1
 
 // replace github.com/jpillora/opts => ../../../millergarym/opts
 
