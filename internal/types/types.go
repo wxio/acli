@@ -14,6 +14,7 @@ import (
 type Root struct {
 	Cfg        string `help:"Config file in json format (NOTE file entries take precedence over command-line flags & env)" json:"-"`
 	DumpConfig bool   `help:"Dump the config to stdout and exits" json:"-"`
+	GenDocs    bool
 }
 
 func (rt Root) Config(in interface{}) {

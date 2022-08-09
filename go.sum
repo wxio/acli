@@ -8,8 +8,10 @@ github.com/hashicorp/go-multierror v1.0.0 h1:iVjPR7a6H0tWELX5NxNe7bYopibicUzc7uP
 github.com/hashicorp/go-multierror v1.0.0/go.mod h1:dHtQlpGsu+cZNNAkkCN/P3hoUDHhCYQXV3UM06sGGrk=
 github.com/iancoleman/strcase v0.2.0 h1:05I4QRnGpI0m37iZQRuskXh+w77mr6Z41lwQzuHLwW0=
 github.com/iancoleman/strcase v0.2.0/go.mod h1:iwCmte+B7n89clKwxIoIXy/HfoL7AsD47ZCWhYzw7ho=
-github.com/millergarym/opts v1.5.1 h1:PEGdvK4hxOz4ZK6VVubrrKm8JfDBcOgy3+u9XfRhRC0=
-github.com/millergarym/opts v1.5.1/go.mod h1:7p7X/vlpKZmtaDFYKs956EujFqA6aCrOkcCaS6UBcR4=
+github.com/jpillora/md-tmpl v1.2.2 h1:ftU8QU0iKaIZVFVcgpp6feVjPpikRW888IDqT8Qo8/M=
+github.com/jpillora/md-tmpl v1.2.2/go.mod h1:kM4ph05W0PGxUvnGNekdJKLB2RI9WuU9Igfm0Ug/Zzw=
+github.com/millergarym/opts v1.6.0 h1:Ws6CMK1zKHdfQ0KTYfCgZJjS/DS4ZUDeKo+fNzn0xZg=
+github.com/millergarym/opts v1.6.0/go.mod h1:7p7X/vlpKZmtaDFYKs956EujFqA6aCrOkcCaS6UBcR4=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/posener/complete v1.2.2-0.20190308074557-af07aa5181b3 h1:GqpA1/5oN1NgsxoSA4RH0YWTaqvUlQNeOpHXD/JRbOQ=

@@ -20,7 +20,7 @@ type renameOpt struct {
 	// Use annotations to adjust eg. `opts:"mode=arg"`
 	FromOrg    string   `opts:"short=o"`
 	FromName   string   `opts:"short=n"`
-	To         []string `help:"src dest. Either 'org name' or just 'name' eg 'freddo frog' or 'frog'" opts:"mode=arg"`
+	To         []string `help:"* to is either 'org name' or just 'name' eg 'freddo frog' or 'frog'" opts:"mode=arg"`
 	ModulePath string   `help:"the parent path of the internal src directory"`
 	err        error
 }
