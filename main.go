@@ -5,9 +5,9 @@ import (
 	"os"
 
 	"github.com/jpillora/opts"
-	"github.com/wxio/acli/internal/cli/newsubcmd"
-	"github.com/wxio/acli/internal/cli/rename"
-	"github.com/wxio/acli/internal/types"
+	"github.com/gmwxio/acli/internal/cli/newsubcmd"
+	"github.com/gmwxio/acli/internal/cli/rename"
+	"github.com/gmwxio/acli/internal/types"
 )
 
 // Set by build tool chain by

@@ -7,9 +7,9 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/gmwxio/acli/internal/types"
 	"github.com/golang/glog"
 	"github.com/iancoleman/strcase"
-	"github.com/wxio/acli/internal/types"
 )
 
 type newsubcmdOpt struct {

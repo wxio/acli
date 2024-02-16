@@ -8,7 +8,7 @@ You ask why's it amazing;
 
 ## Badges
 
-[![Release](https://img.shields.io/github/release/wxio/acli.svg?style=for-the-badge)](https://github.com/wxio/acli/releases/latest)
+[![Release](https://img.shields.io/github/release/wxio/acli.svg?style=for-the-badge)](https://github.com/gmwxio/acli/releases/latest)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=for-the-badge)](/LICENSE.md)
 [![Powered By: Opts CLI Library](https://img.shields.io/badge/powered%20by-opts_cli-green.svg?style=for-the-badge)](https://github.com/jpillora/opts)
 [![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?style=for-the-badge)](https://github.com/goreleaser)
@@ -18,7 +18,7 @@ You ask why's it amazing;
 [Terminal Recording](./docs/acli_sample.svg) similar to below commands.
 
 ``` bash
-git clone https://github.com/wxio/acli.git mycli
+git clone https://github.com/gmwxio/acli.git mycli
 cd mycli
 go build
 ./acli cli rename wxio/acli freddo/mycli

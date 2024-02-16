@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gmwxio/acli/internal/types"
 	ignore "github.com/sabhiram/go-gitignore"
-	"github.com/wxio/acli/internal/types"
 )
 
 type renameOpt struct {

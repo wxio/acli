@@ -1,4 +1,4 @@
-module github.com/wxio/acli
+module github.com/gmwxio/acli
 
 go 1.18
 
